@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ETF Analyzer | Top 10 High Return ETFs</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    min-height: 100vh;
+    color: #f1f5f9;
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+  input[type="range"] { accent-color: #3b82f6; }
+  .card-hover:hover { transform: scale(1.02); }
+  .card-hover { transition: all 0.3s ease; }
+</style>
+</head>
+<body>
+<div class="max-w-7xl mx-auto px-4 py-8">
+
+  <!-- Header -->
+  <div class="text-center mb-10">
+    <div class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/30 rounded-full mb-4">
+      <span class="text-yellow-400">✨</span>
+      <span class="text-sm text-blue-300">Top 10 High Return ETFs Ranked by 5Y Returns</span>
+    </div>
+    <h1 class="text-5xl font-bold mb-3" style="background: linear-gradient(to right, #60a5fa, #c084fc, #f472b6); -webkit-background-clip: text; background-clip: text; color: transparent;">
+      ETF Analyzer
+    </h1>
+    <p class="text-slate-400 max-w-2xl mx-auto">
+      Discover, analyze and invest in top performing ETFs with SIP & One-time investment calculators
+    </p>
+  </div>
+
+  <!-- ETF Grid -->
+  <h2 class="text-2xl font-bold mb-5">📈 Top 10 ETFs</h2>
+  <div id="etfGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-10"></div>
+
+  <!-- Selected ETF Header -->
+  <div id="selectedHeader" class="bg-gradient-to-br from-slate-800/40 to-slate-900/40 rounded-3xl p-6 border border-slate-700 mb-6"></div>
+
+  <!-- Quick Facts + Chart -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <div id="chartBox" class="bg-slate-800/60 rounded-2xl p-6 border border-slate-700"></div>
+    <div id="quickFacts" class="bg-slate-800/60 rounded-2xl p-6 border border-slate-700"></div>
+  </div>
+
+  <!-- Calculators -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+
+    <!-- SIP Calculator -->
+    <div class="bg-slate-800/60 rounded-2xl p-6 border border-slate-700">
+      <h3 class="text-xl font-bold mb-4">🧮 SIP Calculator (Monthly)</h3>
+      <div class="space-y-4">
+        <div>
+          <label class="text-sm text-slate-300 flex justify-between mb-2">
+            Monthly Investment <span id="sipAmtLabel" class="text-blue-400 font-bold">₹5,000</span>
+          </label>
+          <input id="sipAmount" type="range" min="500" max="100000" step="500" value="5000" class="w-full"/>
+        </div>
+        <div>
+          <label class="text-sm text-slate-300 flex justify-between mb-2">
+            Period <span id="sipYearsLabel" class="text-blue-400 font-bold">10 years</span>
+          </label>
+          <input id="sipYears" type="range" min="1" max="30" step="1" value="10" class="w-full"/>
+        </div>
+        <div class="grid grid-cols-3 gap-3 pt-3">
+          <div class="bg-slate-900/60 p-3 rounded-lg text-center">
+            <p class="text-xs text-slate-400">Invested</p>
+            <p id="sipInvested" class="text-white font-bold">₹6,00,000</p>
+          </div>
+          <div class="bg-slate-900/60 p-3 rounded-lg text-center">
+            <p class="text-xs text-slate-400">Gains</p>
+            <p id="sipGains" class="text-green-400 font-bold">₹0</p>
+          </div>
+          <div class="bg-gradient-to-br from-blue-600/30 to-purple-600/30 p-3 rounded-lg text-center">
+            <p class="text-xs text-slate-300">Total</p>
+            <p id="sipTotal" class="text-white font-bold">₹0</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lump Sum Calculator -->
+    <div class="bg-slate-800/60 rounded-2xl p-6 border border-slate-700">
+      <h3 class="text-xl font-bold mb-4">💼 One-Time (Lump Sum)</h3>
+      <div class="space-y-4">
+        <div>
+          <label class="text-sm text-slate-300 flex justify-between mb-2">
+            Investment Amount <span id="lumpAmtLabel" class="text-purple-400 font-bold">₹1,00,000</span>
+          </label>
+          <input id="lumpAmount" type="range" min="1000" max="1000000" step="1000" value="100000" class="w-full" style="accent-color:#a855f7"/>
+        </div>
+        <div>
+          <label class="text-sm text-slate-300 flex justify-between mb-2">
+            Period <span id="lumpYearsLabel" class="text-purple-400 font-bold">5 years</span>
+          </label>
+          <input id="lumpYears" type="range" min="1" max="30" step="1" value="5" class="w-full" style="accent-color:#a855f7"/>
+        </div>
+        <div class="grid grid-cols-3 gap-3 pt-3">
+          <div class="bg-slate-900/60 p-3 rounded-lg text-center">
+            <p class="text-xs text-slate-400">Invested</p>
+            <p id="lumpInvested" class="text-white font-bold">₹1,00,000</p>
+          </div>
+          <div class="bg-slate-900/60 p-3 rounded-lg text-center">
+            <p class="text-xs text-slate-400">Gains</p>
+            <p id="lumpGains" class="text-green-400 font-bold">₹0</p>
+          </div>
+          <div class="bg-gradient-to-br from-purple-600/30 to-pink-600/30 p-3 rounded-lg text-center">
+            <p class="text-xs text-slate-300">Total</p>
+            <p id="lumpTotal" class="text-white font-bold">₹0</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="text-center text-slate-500 text-sm py-8 border-t border-slate-800">
+    <p>⚠️ Returns shown are illustrative. Mutual fund investments are subject to market risks.</p>
+    <p class="mt-2">Built with ❤️ — Deployed on Vercel</p>
+  </footer>
+</div>
+
+<script>
+const topETFs = [
+  { id:1, name:"Nippon India ETF Nifty BeES", symbol:"NIFTYBEES", category:"Large Cap", nav:285.50, return1Y:24.5, return3Y:16.2, return5Y:14.8, expenseRatio:0.05, aum:"12,500 Cr", risk:"Moderate" },
+  { id:2, name:"Motilal Oswal Nasdaq 100 ETF", symbol:"MON100", category:"International", nav:158.20, return1Y:32.8, return3Y:18.5, return5Y:19.2, expenseRatio:0.58, aum:"8,200 Cr", risk:"High" },
+  { id:3, name:"ICICI Prudential Nifty Next 50 ETF", symbol:"JUNIORBEES", category:"Mid Cap", nav:712.40, return1Y:38.6, return3Y:21.4, return5Y:17.5, expenseRatio:0.15, aum:"5,400 Cr", risk:"High" },
+  { id:4, name:"SBI ETF Sensex", symbol:"SETFSENSEX", category:"Large Cap", nav:920.10, return1Y:22.1, return3Y:15.8, return5Y:14.2, expenseRatio:0.07, aum:"9,800 Cr", risk:"Moderate" },
+  { id:5, name:"Mirae Asset NYSE FANG+ ETF", symbol:"MAFANG", category:"International", nav:78.65, return1Y:45.2, return3Y:24.8, return5Y:22.6, expenseRatio:0.66, aum:"2,100 Cr", risk:"Very High" },
+  { id:6, name:"Nippon India ETF Bank BeES", symbol:"BANKBEES", category:"Sectoral", nav:512.80, return1Y:18.4, return3Y:14.6, return5Y:12.8, expenseRatio:0.19, aum:"6,700 Cr", risk:"High" },
+  { id:7, name:"ICICI Prudential Gold ETF", symbol:"GOLDIETF", category:"Commodity", nav:68.45, return1Y:28.9, return3Y:17.2, return5Y:13.4, expenseRatio:0.50, aum:"4,300 Cr", risk:"Moderate" },
+  { id:8, name:"Kotak Nifty PSU Bank ETF", symbol:"PSUBNKBEES", category:"Sectoral", nav:720.30, return1Y:42.5, return3Y:26.8, return5Y:16.4, expenseRatio:0.49, aum:"1,800 Cr", risk:"Very High" },
+  { id:9, name:"HDFC Nifty 50 ETF", symbol:"HDFCNIFTY", category:"Large Cap", nav:245.70, return1Y:23.8, return3Y:16.0, return5Y:14.5, expenseRatio:0.05, aum:"7,500 Cr", risk:"Moderate" },
+  { id:10, name:"Mirae Asset Nifty IT ETF", symbol:"ITBEES", category:"Sectoral", nav:38.20, return1Y:26.4, return3Y:19.8, return5Y:18.2, expenseRatio:0.20, aum:"1,500 Cr", risk:"High" }
+];
+
+const sortedETFs = [...topETFs].sort((a,b) => b.return5Y - a.return5Y);
+let selected = sortedETFs[0];
+
+const riskColor = (r) => {
+  if(r==="Moderate") return "bg-yellow-500/20 text-yellow-300 border-yellow-500/50";
+  if(r==="High") return "bg-orange-500/20 text-orange-300 border-orange-500/50";
+  return "bg-red-500/20 text-red-300 border-red-500/50";
+};
+
+const fmt = (n) => "₹" + Math.round(n).toLocaleString('en-IN');
+
+function renderGrid() {
+  const grid = document.getElementById("etfGrid");
+  grid.innerHTML = sortedETFs.map((etf, i) => `
+    <div onclick="selectETF(${etf.id})" class="card-hover cursor-pointer p-5 rounded-2xl border ${selected.id===etf.id ? 'bg-gradient-to-br from-blue-600/30 to-purple-600/30 border-blue-400' : 'bg-slate-800/60 border-slate-700 hover:border-blue-500/50'}">
+      <div class="flex justify-between items-start mb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-slate-900 font-bold text-sm">#${i+1}</div>
+          <span class="text-xs px-2 py-1 bg-blue-500/20 text-blue-300 rounded-md">${etf.category}</span>
+        </div>
+        <span class="text-xs px-2 py-1 rounded-md border ${riskColor(etf.risk)}">${etf.risk}</span>
+      </div>
+      <h3 class="font-bold text-lg text-white mb-1">${etf.name}</h3>
+      <p class="text-sm text-slate-400 mb-4">${etf.symbol}</p>
+      <div class="grid grid-cols-3 gap-2 mb-4">
+        <div class="bg-slate-900/50 rounded-lg p-2 text-center">
+          <p class="text-xs text-slate-400">1Y</p>
+          <p class="text-green-400 font-bold">📈 ${etf.return1Y}%</p>
+        </div>
+        <div class="bg-slate-900/50 rounded-lg p-2 text-center">
+          <p class="text-xs text-slate-400">3Y</p>
+          <p class="text-green-400 font-bold">${etf.return3Y}%</p>
+        </div>
+        <div class="bg-slate-900/50 rounded-lg p-2 text-center">
+          <p class="text-xs text-slate-400">5Y</p>
+          <p class="text-green-400 font-bold">${etf.return5Y}%</p>
+        </div>
+      </div>
+      <div class="flex justify-between text-xs text-slate-400 pt-3 border-t border-slate-700">
+        <span>NAV: ₹${etf.nav}</span>
+        <span>Expense: ${etf.expenseRatio}%</span>
+      </div>
+    </div>
+  `).join("");
+}
+
+function renderSelected() {
+  document.getElementById("selectedHeader").innerHTML = `
+    <h2 class="text-2xl font-bold mb-1">${selected.name}</h2>
+    <p class="text-slate-400">${selected.symbol} • ${selected.category} • AUM: ₹${selected.aum}</p>
+  `;
+  
+  // Chart (CSS bars)
+  const max = Math.max(selected.return1Y, selected.return3Y, selected.return5Y);
+  document.getElementById("chartBox").innerHTML = `
+    <h3 class="text-xl font-bold mb-4">📊 ${selected.symbol} Returns</h3>
+    <div class="space-y-4">
+      ${[['1 Year',selected.return1Y],['3 Years',selected.return3Y],['5 Years',selected.return5Y]].map(([label,val])=>`
+        <div>
+          <div class="flex justify-between mb-1">
+            <span class="text-slate-300 text-sm">${label}</span>
+            <span class="text-green-400 font-bold">${val}%</span>
+          </div>
+          <div class="w-full bg-slate-900 rounded-full h-3">
+            <div class="h-3 rounded-full" style="width:${(val/max)*100}%; background: linear-gradient(to right, #3b82f6, #8b5cf6);"></div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  
+  // Quick Facts
+  const facts = [
+    ['Current NAV', `₹${selected.nav}`],
+    ['Expense Ratio', `${selected.expenseRatio}%`],
+    ['AUM', `₹${selected.aum}`],
+    ['Risk Level', selected.risk],
+    ['1Y Returns', `${selected.return1Y}%`],
+    ['5Y Returns', `${selected.return5Y}%`]
+  ];
+  document.getElementById("quickFacts").innerHTML = `
+    <h3 class="text-xl font-bold mb-4">📌 Quick Facts</h3>
+    <div class="space-y-3">
+      ${facts.map(([k,v])=>`
+        <div class="flex justify-between py-2 border-b border-slate-700">
+          <span class="text-slate-400">${k}</span>
+          <span class="font-semibold text-white">${v}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  
+  calcSIP();
+  calcLump();
+}
+
+function selectETF(id) {
+  selected = sortedETFs.find(e => e.id === id);
+  renderGrid();
+  renderSelected();
+}
+
+function calcSIP() {
+  const amt = +document.getElementById("sipAmount").value;
+  const yrs = +document.getElementById("sipYears").value;
+  document.getElementById("sipAmtLabel").innerText = "₹" + amt.toLocaleString('en-IN');
+  document.getElementById("sipYearsLabel").innerText = yrs + " years";
+  const rate = selected.return5Y / 100 / 12;
+  const months = yrs * 12;
+  const fv = amt * ((Math.pow(1+rate, months) - 1) / rate) * (1+rate);
+  const inv = amt * months;
+  document.getElementById("sipInvested").innerText = fmt(inv);
+  document.getElementById("sipGains").innerText = fmt(fv-inv);
+  document.getElementById("sipTotal").innerText = fmt(fv);
+}
+
+function calcLump() {
+  const amt = +document.getElementById("lumpAmount").value;
+  const yrs = +document.getElementById("lumpYears").value;
+  document.getElementById("lumpAmtLabel").innerText = "₹" + amt.toLocaleString('en-IN');
+  document.getElementById("lumpYearsLabel").innerText = yrs + " years";
+  const rate = selected.return5Y / 100;
+  const fv = amt * Math.pow(1+rate, yrs);
+  document.getElementById("lumpInvested").innerText = fmt(amt);
+  document.getElementById("lumpGains").innerText = fmt(fv-amt);
+  document.getElementById("lumpTotal").innerText = fmt(fv);
+}
+
+document.getElementById("sipAmount").addEventListener("input", calcSIP);
+document.getElementById("sipYears").addEventListener("input", calcSIP);
+document.getElementById("lumpAmount").addEventListener("input", calcLump);
+document.getElementById("lumpYears").addEventListener("input", calcLump);
+
+renderGrid();
+renderSelected();
+</script>
+</body>
+</html>
