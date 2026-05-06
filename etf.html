@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ETF Details | Live Chart</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  body {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    min-height: 100vh;
+    color: #f1f5f9;
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+  input[type="range"] { accent-color: #3b82f6; }
+  .loader {
+    border: 3px solid #1e293b;
+    border-top: 3px solid #3b82f6;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+  }
+  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="max-w-7xl mx-auto px-4 py-8">
+
+  <a href="index.html" class="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 mb-6">
+    ← Back to All ETFs
+  </a>
+
+  <!-- Header -->
+  <div id="header" class="bg-gradient-to-br from-slate-800/40 to-slate-900/40 rounded-3xl p-6 border border-slate-700 mb-6">
+    <div class="loader"></div>
+    <p class="text-center text-slate-400">Loading ETF data...</p>
+  </div>
+
+  <!-- Live Price -->
+  <div id="livePrice" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6"></div>
+
+  <!-- Chart Period Buttons -->
+  <div class="flex flex-wrap gap-2 mb-4">
+    <button onclick="loadChart('1mo','1d')" class="period-btn px-4 py-2 bg-slate-800/60 hover:bg-blue-600/30 border border-slate-700 rounded-lg text-sm">1M</button>
+    <button onclick="loadChart('3mo','1d')" class="period-btn px-4 py-2 bg-slate-800/60 hover:bg-blue-600/30 border border-slate-700 rounded-lg text-sm">3M</button>
+    <button onclick="loadChart('6mo','1d')" class="period-btn px-4 py-2 bg-slate-800/60 hover:bg-blue-600/30 border border-slate-700 rounded-lg text-sm">6M</button>
+    <button onclick="loadChart('1y','1d')" class="period-btn px-4 py-2 bg-blue-600/30 border border-blue-500 rounded-lg text-sm">1Y</button>
+    <button onclick="loadChart('5y','1wk')" class="period-btn px-4 py-2 bg-slate-800/60 hover:bg-blue-600/30 border border-slate-700 rounded-lg text-sm">5Y</button>
+    <button onclick="loadChart('max','1mo')" class="period-btn px-4 py-2 bg-slate-800/60 hover:bg-blue-600/30 border border-slate-700 rounded-lg text-sm">MAX</button>
+  </div>
+
+  <!-- Live Chart -->
+  <div class="bg-slate-800/60 rounded-2xl p-6 border border-slate-700 mb-6">
+    <h3 class="text-xl font-bold mb-4">📊 Live Price Chart</h3>
+    <div id="chartLoader" class="loader"></div>
+    <canvas id="priceChart" style="max-height:400px;"></canvas>
+  </div>
+
+  <!-- Calculators -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+
+    <div class="bg-slate-800/60 rounded-2xl p-6 border border-slate-700">
+      <h3 class="text-xl font-bold mb-4">🧮 SIP Calculator</h3>
+      <div class="space-y-4">
+        <div>
+          <label class="text-sm text-slate-300 flex justify-between mb-2">
+            Monthly Investment <span id="sipAmtLabel" class="text-blue-400 font-bold">₹5,000</span>
+          </label>
+          <input id="sipAmount" type="range" min="500" max="100000" step="500" value="5000" class="w-full"/>
+        </div>
+        <div>
+          <label class="text-sm text-slate-300 flex justify-between mb-2">
+            Period <span id="sipYearsLabel" class="text-blue-400 font-bold">10 years</span>
+          </label>
+          <input id="sipYears" type="range" min="1" max="30" step="1" value="10" class="w-full"/>
+        </div>
+        <div class="grid grid-cols-3 gap-3 pt-3">
+          <div class="bg-slate-900/60 p-3 rounded-lg text-center">
+            <p class="text-xs text-slate-400">Invested</p>
+            <p id="sipInvested" class="text-white font-bold">₹0</p>
+          </div>
+          <div class="bg-slate-900/60 p-3 rounded-lg text-center">
+            <p class="text-xs text-slate-400">Gains</p>
+            <p id="sipGains" class="text-green-400 font-bold">₹0</p>
+          </div>
+          <div class="bg-gradient-to-br from-blue-600/30 to-purple-600/30 p-3 rounded-lg text-center">
+            <p class="text-xs text-slate-300">Total</p>
+            <p id="sipTotal" class="text-white font-bold">₹0</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-slate-800/60 rounded-2xl p-6 border border-slate-700">
+      <h3 class="text-xl font-bold mb-4">💼 Lump Sum Calculator</h3>
+      <div class="space-y-4">
+        <div>
+          <label class="text-sm text-slate-300 flex justify-between mb-2">
+            Amount <span id="lumpAmtLabel" class="text-purple-400 font-bold">₹1,00,000</span>
+          </label>
+          <input id="lumpAmount" type="range" min="1000" max="1000000" step="1000" value="100000" class="w-full" style="accent-color:#a855f7"/>
+        </div>
+        <div>
+          <label class="text-sm text-slate-300 flex justify-between mb-2">
+            Period <span id="lumpYearsLabel" class="text-purple-400 font-bold">5 years</span>
+          </label>
+          <input id="lumpYears" type="range" min="1" max="30" step="1" value="5" class="w-full" style="accent-color:#a855f7"/>
+        </div>
+        <div class="grid grid-cols-3 gap-3 pt-3">
+          <div class="bg-slate-900/60 p-3 rounded-lg text-center">
+            <p class="text-xs text-slate-400">Invested</p>
+            <p id="lumpInvested" class="text-white font-bold">₹0</p>
+          </div>
+          <div class="bg-slate-900/60 p-3 rounded-lg text-center">
+            <p class="text-xs text-slate-400">Gains</p>
+            <p id="lumpGains" class="text-green-400 font-bold">₹0</p>
+          </div>
+          <div class="bg-gradient-to-br from-purple-600/30 to-pink-600/30 p-3 rounded-lg text-center">
+            <p class="text-xs text-slate-300">Total</p>
+            <p id="lumpTotal" class="text-white font-bold">₹0</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="text-center text-slate-500 text-sm py-8 border-t border-slate-800">
+    <p>📡 Live data from Yahoo Finance API</p>
+    <p class="mt-2">⚠️ Investments are subject to market risks</p>
+  </footer>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const symbol = params.get('symbol') || 'NIFTYBEES.NS';
+const id = parseInt(params.get('id'));
+
+const etfList = JSON.parse(localStorage.getItem('etfList') || '[]');
+let selected = etfList.find(e => e.id === id) || { 
+  name: symbol, symbol, display: symbol, return5Y: 15, expenseRatio: 0.1, risk: 'Moderate', category: 'ETF', aum: 'N/A'
+};
+
+let chart = null;
+let currentPrice = 0;
+
+const fmt = (n) => "₹" + Math.round(n).toLocaleString('en-IN');
+
+// CORS proxy for Yahoo Finance
+const PROXY = "https://api.allorigins.win/raw?url=";
+
+async function loadChart(range='1y', interval='1d') {
+  document.getElementById('chartLoader').style.display = 'block';
+  
+  // Highlight active button
+  document.querySelectorAll('.period-btn').forEach(btn => {
+    btn.classList.remove('bg-blue-600/30','border-blue-500');
+    btn.classList.add('bg-slate-800/60','border-slate-700');
+  });
+  event && event.target && event.target.classList.add('bg-blue-600/30','border-blue-500');
+
+  try {
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=${range}&interval=${interval}`;
+    const res = await fetch(PROXY + encodeURIComponent(url));
+    const data = await res.json();
+    
+    const result = data.chart.result[0];
+    const timestamps = result.timestamp;
+    const prices = result.indicators.quote[0].close;
+    const meta = result.meta;
+    
+    currentPrice = meta.regularMarketPrice;
+    
+    // Update header
+    updateHeader(meta);
+    updateLivePrice(meta);
+    
+    // Build chart
+    const labels = timestamps.map(t => {
+      const d = new Date(t * 1000);
+      return d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'2-digit'});
+    });
+    
+    if (chart) chart.destroy();
+    
+    const ctx = document.getElementById('priceChart').getContext('2d');
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(59, 130, 246, 0.5)');
+    gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
+    
+    chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: symbol + ' Price',
+          data: prices,
+          borderColor: '#3b82f6',
+          backgroundColor: gradient,
+          fill: true,
+          tension: 0.3,
+          pointRadius: 0,
+          borderWidth: 2,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { labels: { color: '#94a3b8' } },
+          tooltip: { 
+            backgroundColor: '#1e293b',
+            titleColor: '#f1f5f9',
+            bodyColor: '#f1f5f9',
+            borderColor: '#334155',
+            borderWidth: 1,
+          }
+        },
+        scales: {
+          x: { 
+            ticks: { color: '#94a3b8', maxTicksLimit: 8 },
+            grid: { color: '#334155' }
+          },
+          y: { 
+            ticks: { color: '#94a3b8', callback: (v) => '₹' + v },
+            grid: { color: '#334155' }
+          }
+        }
+      }
+    });
+    
+    document.getElementById('chartLoader').style.display = 'none';
+    calcSIP();
+    calcLump();
+    
+  } catch(err) {
+    console.error(err);
+    document.getElementById('chartLoader').style.display = 'none';
+    document.getElementById('header').innerHTML = `
+      <h2 class="text-2xl font-bold mb-2">${selected.name}</h2>
+      <p class="text-yellow-400">⚠️ Live data temporarily unavailable. Showing cached info.</p>
+      <p class="text-slate-400 mt-2">${selected.display} • ${selected.category}</p>
+    `;
+  }
+}
+
+function updateHeader(meta) {
+  document.getElementById('header').innerHTML = `
+    <div class="flex flex-wrap justify-between items-start gap-4">
+      <div>
+        <h2 class="text-3xl font-bold mb-2">${selected.name}</h2>
+        <p class="text-slate-400">${selected.display} • ${selected.category} • ${meta.exchangeName}</p>
+      </div>
+      <div class="text-right">
+        <p class="text-4xl font-bold text-white">₹${meta.regularMarketPrice.toFixed(2)}</p>
+        <p class="${meta.regularMarketPrice >= meta.chartPreviousClose ? 'text-green-400' : 'text-red-400'} text-sm">
+          ${meta.regularMarketPrice >= meta.chartPreviousClose ? '▲' : '▼'} 
+          ${(meta.regularMarketPrice - meta.chartPreviousClose).toFixed(2)} 
+          (${(((meta.regularMarketPrice - meta.chartPreviousClose) / meta.chartPreviousClose) * 100).toFixed(2)}%)
+        </p>
+      </div>
+    </div>
+  `;
+}
+
+function updateLivePrice(meta) {
+  const items = [
+    { label: 'Day High', value: '₹' + (meta.regularMarketDayHigh || 0).toFixed(2), color: 'text-green-400' },
+    { label: 'Day Low', value: '₹' + (meta.regularMarketDayLow || 0).toFixed(2), color: 'text-red-400' },
+    { label: '52W High', value: '₹' + (meta.fiftyTwoWeekHigh || 0).toFixed(2), color: 'text-blue-400' },
+    { label: '52W Low', value: '₹' + (meta.fiftyTwoWeekLow || 0).toFixed(2), color: 'text-purple-400' }
+  ];
+  document.getElementById('livePrice').innerHTML = items.map(i => `
+    <div class="bg-slate-800/60 rounded-2xl p-4 border border-slate-700">
+      <p class="text-xs text-slate-400 mb-1">${i.label}</p>
+      <p class="${i.color} font-bold text-lg">${i.value}</p>
+    </div>
+  `).join('');
+}
+
+function calcSIP() {
+  const amt = +document.getElementById("sipAmount").value;
+  const yrs = +document.getElementById("sipYears").value;
+  document.getElementById("sipAmtLabel").innerText = "₹" + amt.toLocaleString('en-IN');
+  document.getElementById("sipYearsLabel").innerText = yrs + " years";
+  const rate = (selected.return5Y || 15) / 100 / 12;
+  const months = yrs * 12;
+  const fv = amt * ((Math.pow(1+rate, months) - 1) / rate) * (1+rate);
+  const inv = amt * months;
+  document.getElementById("sipInvested").innerText = fmt(inv);
+  document.getElementById("sipGains").innerText = fmt(fv-inv);
+  document.getElementById("sipTotal").innerText = fmt(fv);
+}
+
+function calcLump() {
+  const amt = +document.getElementById("lumpAmount").value;
+  const yrs = +document.getElementById("lumpYears").value;
+  document.getElementById("lumpAmtLabel").innerText = "₹" + amt.toLocaleString('en-IN');
+  document.getElementById("lumpYearsLabel").innerText = yrs + " years";
+  const rate = (selected.return5Y || 15) / 100;
+  const fv = amt * Math.pow(1+rate, yrs);
+  document.getElementById("lumpInvested").innerText = fmt(amt);
+  document.getElementById("lumpGains").innerText = fmt(fv-amt);
+  document.getElementById("lumpTotal").innerText = fmt(fv);
+}
+
+document.getElementById("sipAmount").addEventListener("input", calcSIP);
+document.getElementById("sipYears").addEventListener("input", calcSIP);
+document.getElementById("lumpAmount").addEventListener("input", calcLump);
+document.getElementById("lumpYears").addEventListener("input", calcLump);
+
+loadChart('1y','1d');
+calcSIP();
+calcLump();
+</script>
+</body>
+</html>
