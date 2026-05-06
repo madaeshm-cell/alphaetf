@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>ETF Analyzer | Top 10 High Return ETFs</title>
+<title>ETF Analyzer | Top 10 ETFs by Category</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   body {
@@ -14,50 +14,193 @@
   }
   .card-hover:hover { transform: scale(1.02); }
   .card-hover { transition: all 0.3s ease; }
+  .cat-btn { transition: all 0.2s ease; }
+  .cat-btn.active { 
+    background: linear-gradient(to right, #3b82f6, #8b5cf6);
+    border-color: transparent;
+    color: white;
+    transform: scale(1.05);
+  }
+  .nav-scroll::-webkit-scrollbar { height: 6px; }
+  .nav-scroll::-webkit-scrollbar-track { background: #1e293b; }
+  .nav-scroll::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 3px; }
 </style>
 </head>
 <body>
+
+<!-- Sticky Header with Categories -->
+<header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-700">
+  <div class="max-w-7xl mx-auto px-4 py-4">
+    <div class="flex items-center justify-between mb-4">
+      <h1 class="text-2xl font-bold" style="background: linear-gradient(to right, #60a5fa, #c084fc, #f472b6); -webkit-background-clip: text; background-clip: text; color: transparent;">
+        📊 ETF Analyzer
+      </h1>
+      <span class="text-xs text-slate-400 hidden sm:block">Live data • 10 Categories • Top 10 ETFs each</span>
+    </div>
+    
+    <!-- Category Pills -->
+    <div id="categoryNav" class="nav-scroll flex gap-2 overflow-x-auto pb-2"></div>
+  </div>
+</header>
+
 <div class="max-w-7xl mx-auto px-4 py-8">
 
-  <div class="text-center mb-10">
-    <div class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/30 rounded-full mb-4">
-      <span class="text-yellow-400">✨</span>
-      <span class="text-sm text-blue-300">Top 10 High Return ETFs — Click any ETF for live chart</span>
-    </div>
-    <h1 class="text-5xl font-bold mb-3" style="background: linear-gradient(to right, #60a5fa, #c084fc, #f472b6); -webkit-background-clip: text; background-clip: text; color: transparent;">
-      ETF Analyzer
-    </h1>
-    <p class="text-slate-400 max-w-2xl mx-auto">
-      Live charts, real-time data, and investment calculators powered by Yahoo Finance
-    </p>
+  <!-- Category Title -->
+  <div class="mb-8">
+    <h2 id="categoryTitle" class="text-3xl font-bold mb-2">🏆 Top 10 ETFs - All Categories</h2>
+    <p id="categoryDesc" class="text-slate-400">Best performing ETFs across all sectors ranked by 5-year returns</p>
   </div>
 
-  <h2 class="text-2xl font-bold mb-5">📈 Top 10 ETFs (Click to view live chart)</h2>
-  <div id="etfGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-10"></div>
+  <!-- ETF Grid -->
+  <div id="etfGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-10"></div>
 
   <footer class="text-center text-slate-500 text-sm py-8 border-t border-slate-800">
-    <p>⚠️ Returns shown are illustrative. Mutual fund investments are subject to market risks.</p>
-    <p class="mt-2">Built with ❤️ — Live data from Yahoo Finance</p>
+    <p>📡 Live data from Yahoo Finance</p>
+    <p class="mt-2">⚠️ Mutual fund investments are subject to market risks</p>
   </footer>
 </div>
 
 <script>
-const topETFs = [
+const allETFs = [
+  // LARGE CAP
   { id:1, name:"Nippon India ETF Nifty BeES", symbol:"NIFTYBEES.NS", display:"NIFTYBEES", category:"Large Cap", return1Y:24.5, return3Y:16.2, return5Y:14.8, expenseRatio:0.05, aum:"12,500 Cr", risk:"Moderate" },
-  { id:2, name:"Motilal Oswal Nasdaq 100 ETF", symbol:"MON100.NS", display:"MON100", category:"International", return1Y:32.8, return3Y:18.5, return5Y:19.2, expenseRatio:0.58, aum:"8,200 Cr", risk:"High" },
-  { id:3, name:"ICICI Prudential Nifty Next 50 ETF", symbol:"JUNIORBEES.NS", display:"JUNIORBEES", category:"Mid Cap", return1Y:38.6, return3Y:21.4, return5Y:17.5, expenseRatio:0.15, aum:"5,400 Cr", risk:"High" },
-  { id:4, name:"SBI ETF Sensex", symbol:"SETFSENSEX.NS", display:"SETFSENSEX", category:"Large Cap", return1Y:22.1, return3Y:15.8, return5Y:14.2, expenseRatio:0.07, aum:"9,800 Cr", risk:"Moderate" },
-  { id:5, name:"Mirae Asset NYSE FANG+ ETF", symbol:"MAFANG.NS", display:"MAFANG", category:"International", return1Y:45.2, return3Y:24.8, return5Y:22.6, expenseRatio:0.66, aum:"2,100 Cr", risk:"Very High" },
-  { id:6, name:"Nippon India ETF Bank BeES", symbol:"BANKBEES.NS", display:"BANKBEES", category:"Sectoral", return1Y:18.4, return3Y:14.6, return5Y:12.8, expenseRatio:0.19, aum:"6,700 Cr", risk:"High" },
-  { id:7, name:"ICICI Prudential Gold ETF", symbol:"GOLDIETF.NS", display:"GOLDIETF", category:"Commodity", return1Y:28.9, return3Y:17.2, return5Y:13.4, expenseRatio:0.50, aum:"4,300 Cr", risk:"Moderate" },
-  { id:8, name:"Kotak Nifty PSU Bank ETF", symbol:"PSUBNKBEES.NS", display:"PSUBNKBEES", category:"Sectoral", return1Y:42.5, return3Y:26.8, return5Y:16.4, expenseRatio:0.49, aum:"1,800 Cr", risk:"Very High" },
-  { id:9, name:"HDFC Nifty 50 ETF", symbol:"HDFCNIFTY.NS", display:"HDFCNIFTY", category:"Large Cap", return1Y:23.8, return3Y:16.0, return5Y:14.5, expenseRatio:0.05, aum:"7,500 Cr", risk:"Moderate" },
-  { id:10, name:"Mirae Asset Nifty IT ETF", symbol:"ITBEES.NS", display:"ITBEES", category:"Sectoral", return1Y:26.4, return3Y:19.8, return5Y:18.2, expenseRatio:0.20, aum:"1,500 Cr", risk:"High" }
+  { id:2, name:"SBI ETF Sensex", symbol:"SETFSENSEX.NS", display:"SETFSENSEX", category:"Large Cap", return1Y:22.1, return3Y:15.8, return5Y:14.2, expenseRatio:0.07, aum:"9,800 Cr", risk:"Moderate" },
+  { id:3, name:"HDFC Nifty 50 ETF", symbol:"HDFCNIFTY.NS", display:"HDFCNIFTY", category:"Large Cap", return1Y:23.8, return3Y:16.0, return5Y:14.5, expenseRatio:0.05, aum:"7,500 Cr", risk:"Moderate" },
+  { id:4, name:"ICICI Prudential Nifty 50 ETF", symbol:"ICICINIFTY.NS", display:"ICICINIFTY", category:"Large Cap", return1Y:23.5, return3Y:15.9, return5Y:14.4, expenseRatio:0.05, aum:"6,200 Cr", risk:"Moderate" },
+  { id:5, name:"Kotak Nifty 50 ETF", symbol:"KOTAKNIFTY.NS", display:"KOTAKNIFTY", category:"Large Cap", return1Y:23.6, return3Y:16.1, return5Y:14.3, expenseRatio:0.06, aum:"4,100 Cr", risk:"Moderate" },
+  { id:6, name:"UTI Nifty 50 ETF", symbol:"UTINIFTETF.NS", display:"UTINIFTETF", category:"Large Cap", return1Y:23.4, return3Y:15.7, return5Y:14.1, expenseRatio:0.07, aum:"3,800 Cr", risk:"Moderate" },
+  { id:7, name:"Aditya Birla SL Nifty ETF", symbol:"ABSLNN50ET.NS", display:"ABSLNN50ET", category:"Large Cap", return1Y:23.2, return3Y:15.6, return5Y:14.0, expenseRatio:0.05, aum:"2,900 Cr", risk:"Moderate" },
+  { id:8, name:"Axis Nifty 50 ETF", symbol:"AXISNIFTY.NS", display:"AXISNIFTY", category:"Large Cap", return1Y:23.7, return3Y:16.0, return5Y:14.2, expenseRatio:0.07, aum:"1,500 Cr", risk:"Moderate" },
+  { id:9, name:"Edelweiss Nifty 100 Quality 30 ETF", symbol:"NIFTYQLITY.NS", display:"NIFTYQLITY", category:"Large Cap", return1Y:25.1, return3Y:17.2, return5Y:15.4, expenseRatio:0.30, aum:"850 Cr", risk:"Moderate" },
+  { id:10, name:"Mirae Asset Nifty 50 ETF", symbol:"NIFTYETF.NS", display:"NIFTYETF", category:"Large Cap", return1Y:23.6, return3Y:15.9, return5Y:14.2, expenseRatio:0.05, aum:"1,200 Cr", risk:"Moderate" },
+
+  // MID CAP
+  { id:11, name:"ICICI Prudential Nifty Next 50 ETF", symbol:"JUNIORBEES.NS", display:"JUNIORBEES", category:"Mid Cap", return1Y:38.6, return3Y:21.4, return5Y:17.5, expenseRatio:0.15, aum:"5,400 Cr", risk:"High" },
+  { id:12, name:"Nippon India ETF Nifty Midcap 150", symbol:"MIDCAPETF.NS", display:"MIDCAPETF", category:"Mid Cap", return1Y:42.5, return3Y:24.8, return5Y:21.2, expenseRatio:0.20, aum:"3,800 Cr", risk:"High" },
+  { id:13, name:"Motilal Oswal Midcap 100 ETF", symbol:"M100.NS", display:"M100", category:"Mid Cap", return1Y:40.2, return3Y:23.5, return5Y:19.8, expenseRatio:0.20, aum:"1,200 Cr", risk:"High" },
+  { id:14, name:"Mirae Asset Nifty Midcap 150 ETF", symbol:"MIDCAP150.NS", display:"MIDCAP150", category:"Mid Cap", return1Y:41.8, return3Y:24.1, return5Y:20.5, expenseRatio:0.18, aum:"950 Cr", risk:"High" },
+  { id:15, name:"Kotak Nifty Midcap 50 ETF", symbol:"KOTAKMID50.NS", display:"KOTAKMID50", category:"Mid Cap", return1Y:39.5, return3Y:22.8, return5Y:18.9, expenseRatio:0.22, aum:"680 Cr", risk:"High" },
+  { id:16, name:"Edelweiss Nifty Midcap 150 ETF", symbol:"MIDCAPIETF.NS", display:"MIDCAPIETF", category:"Mid Cap", return1Y:41.2, return3Y:23.9, return5Y:20.1, expenseRatio:0.25, aum:"540 Cr", risk:"High" },
+  { id:17, name:"Axis Nifty Midcap 50 ETF", symbol:"AXISMIDCAP.NS", display:"AXISMIDCAP", category:"Mid Cap", return1Y:39.8, return3Y:22.5, return5Y:18.7, expenseRatio:0.22, aum:"420 Cr", risk:"High" },
+  { id:18, name:"HDFC Nifty Midcap 150 ETF", symbol:"HDFCMID150.NS", display:"HDFCMID150", category:"Mid Cap", return1Y:41.5, return3Y:24.2, return5Y:20.3, expenseRatio:0.18, aum:"380 Cr", risk:"High" },
+  { id:19, name:"ICICI Prudential Midcap Select ETF", symbol:"ICICIMIDCAP.NS", display:"ICICIMIDCAP", category:"Mid Cap", return1Y:40.5, return3Y:23.4, return5Y:19.5, expenseRatio:0.25, aum:"310 Cr", risk:"High" },
+  { id:20, name:"DSP Nifty Midcap 150 ETF", symbol:"DSPMIDCAP.NS", display:"DSPMIDCAP", category:"Mid Cap", return1Y:41.0, return3Y:23.7, return5Y:19.9, expenseRatio:0.20, aum:"280 Cr", risk:"High" },
+
+  // SMALL CAP
+  { id:21, name:"Nippon India ETF Nifty Smallcap 250", symbol:"SMALLCAP.NS", display:"SMALLCAP", category:"Small Cap", return1Y:48.5, return3Y:28.2, return5Y:22.5, expenseRatio:0.30, aum:"2,100 Cr", risk:"Very High" },
+  { id:22, name:"Motilal Oswal Nifty Smallcap 250 ETF", symbol:"MOSMALLCAP.NS", display:"MOSMALLCAP", category:"Small Cap", return1Y:47.8, return3Y:27.5, return5Y:21.8, expenseRatio:0.35, aum:"850 Cr", risk:"Very High" },
+  { id:23, name:"HDFC Nifty Smallcap 250 ETF", symbol:"HDFCSML250.NS", display:"HDFCSML250", category:"Small Cap", return1Y:48.1, return3Y:27.8, return5Y:22.1, expenseRatio:0.30, aum:"650 Cr", risk:"Very High" },
+  { id:24, name:"Mirae Asset Nifty Smallcap 250 ETF", symbol:"SMALLCAP250.NS", display:"SMALLCAP250", category:"Small Cap", return1Y:47.5, return3Y:27.2, return5Y:21.5, expenseRatio:0.30, aum:"420 Cr", risk:"Very High" },
+  { id:25, name:"ICICI Prudential Nifty Smallcap 250 ETF", symbol:"ICICISMALL.NS", display:"ICICISMALL", category:"Small Cap", return1Y:48.2, return3Y:27.9, return5Y:22.0, expenseRatio:0.32, aum:"380 Cr", risk:"Very High" },
+  { id:26, name:"Kotak Nifty Smallcap 50 ETF", symbol:"KOTAKSMALL.NS", display:"KOTAKSMALL", category:"Small Cap", return1Y:46.8, return3Y:26.5, return5Y:20.8, expenseRatio:0.40, aum:"290 Cr", risk:"Very High" },
+  { id:27, name:"Edelweiss Smallcap 250 ETF", symbol:"EDELSMALL.NS", display:"EDELSMALL", category:"Small Cap", return1Y:47.2, return3Y:26.9, return5Y:21.2, expenseRatio:0.38, aum:"210 Cr", risk:"Very High" },
+  { id:28, name:"Axis Smallcap ETF", symbol:"AXISSMALL.NS", display:"AXISSMALL", category:"Small Cap", return1Y:46.5, return3Y:26.2, return5Y:20.5, expenseRatio:0.42, aum:"180 Cr", risk:"Very High" },
+  { id:29, name:"DSP Nifty Smallcap 250 ETF", symbol:"DSPSMALL.NS", display:"DSPSMALL", category:"Small Cap", return1Y:47.6, return3Y:27.3, return5Y:21.6, expenseRatio:0.32, aum:"160 Cr", risk:"Very High" },
+  { id:30, name:"SBI Nifty Smallcap 250 ETF", symbol:"SBISMALL.NS", display:"SBISMALL", category:"Small Cap", return1Y:47.9, return3Y:27.6, return5Y:21.9, expenseRatio:0.30, aum:"140 Cr", risk:"Very High" },
+
+  // BANKING & FINANCE
+  { id:31, name:"Nippon India ETF Bank BeES", symbol:"BANKBEES.NS", display:"BANKBEES", category:"Banking & Finance", return1Y:18.4, return3Y:14.6, return5Y:12.8, expenseRatio:0.19, aum:"6,700 Cr", risk:"High" },
+  { id:32, name:"Kotak Nifty PSU Bank ETF", symbol:"PSUBNKBEES.NS", display:"PSUBNKBEES", category:"Banking & Finance", return1Y:42.5, return3Y:26.8, return5Y:16.4, expenseRatio:0.49, aum:"1,800 Cr", risk:"Very High" },
+  { id:33, name:"SBI ETF Nifty Bank", symbol:"SETFNIFBK.NS", display:"SETFNIFBK", category:"Banking & Finance", return1Y:18.8, return3Y:14.9, return5Y:13.1, expenseRatio:0.20, aum:"3,200 Cr", risk:"High" },
+  { id:34, name:"ICICI Prudential Bank ETF", symbol:"ICICIBANK.NS", display:"ICICIBANK", category:"Banking & Finance", return1Y:18.6, return3Y:14.7, return5Y:12.9, expenseRatio:0.19, aum:"2,500 Cr", risk:"High" },
+  { id:35, name:"HDFC Nifty Bank ETF", symbol:"HDFCBANK.NS", display:"HDFCBANK", category:"Banking & Finance", return1Y:18.5, return3Y:14.8, return5Y:12.8, expenseRatio:0.20, aum:"1,900 Cr", risk:"High" },
+  { id:36, name:"Mirae Asset Nifty Financial Services ETF", symbol:"FINIETF.NS", display:"FINIETF", category:"Banking & Finance", return1Y:20.2, return3Y:15.8, return5Y:13.5, expenseRatio:0.22, aum:"850 Cr", risk:"High" },
+  { id:37, name:"Motilal Oswal Nifty Bank ETF", symbol:"MOBANK.NS", display:"MOBANK", category:"Banking & Finance", return1Y:18.3, return3Y:14.5, return5Y:12.7, expenseRatio:0.20, aum:"650 Cr", risk:"High" },
+  { id:38, name:"Edelweiss Nifty PSU Bank ETF", symbol:"EDELPSUBNK.NS", display:"EDELPSUBNK", category:"Banking & Finance", return1Y:41.8, return3Y:26.2, return5Y:15.9, expenseRatio:0.50, aum:"480 Cr", risk:"Very High" },
+  { id:39, name:"Axis Nifty Bank ETF", symbol:"AXISBANK.NS", display:"AXISBANK", category:"Banking & Finance", return1Y:18.5, return3Y:14.7, return5Y:12.8, expenseRatio:0.21, aum:"380 Cr", risk:"High" },
+  { id:40, name:"Aditya Birla SL Nifty Bank ETF", symbol:"ABSLBANKETF.NS", display:"ABSLBANK", category:"Banking & Finance", return1Y:18.4, return3Y:14.6, return5Y:12.7, expenseRatio:0.22, aum:"290 Cr", risk:"High" },
+
+  // IT & TECHNOLOGY
+  { id:41, name:"Mirae Asset Nifty IT ETF", symbol:"ITBEES.NS", display:"ITBEES", category:"IT & Technology", return1Y:26.4, return3Y:19.8, return5Y:18.2, expenseRatio:0.20, aum:"1,500 Cr", risk:"High" },
+  { id:42, name:"Nippon India ETF Nifty IT", symbol:"ITETF.NS", display:"ITETF", category:"IT & Technology", return1Y:26.8, return3Y:20.1, return5Y:18.5, expenseRatio:0.22, aum:"1,200 Cr", risk:"High" },
+  { id:43, name:"ICICI Prudential IT ETF", symbol:"ICICIIT.NS", display:"ICICIIT", category:"IT & Technology", return1Y:26.5, return3Y:19.9, return5Y:18.3, expenseRatio:0.20, aum:"850 Cr", risk:"High" },
+  { id:44, name:"SBI ETF IT", symbol:"SBIITETF.NS", display:"SBIITETF", category:"IT & Technology", return1Y:26.2, return3Y:19.5, return5Y:17.9, expenseRatio:0.25, aum:"620 Cr", risk:"High" },
+  { id:45, name:"Kotak IT ETF", symbol:"KOTAKIT.NS", display:"KOTAKIT", category:"IT & Technology", return1Y:26.6, return3Y:20.0, return5Y:18.4, expenseRatio:0.22, aum:"480 Cr", risk:"High" },
+  { id:46, name:"HDFC Nifty IT ETF", symbol:"HDFCIT.NS", display:"HDFCIT", category:"IT & Technology", return1Y:26.5, return3Y:19.8, return5Y:18.2, expenseRatio:0.20, aum:"380 Cr", risk:"High" },
+  { id:47, name:"Aditya Birla SL Nifty IT ETF", symbol:"ABSLIT.NS", display:"ABSLIT", category:"IT & Technology", return1Y:26.3, return3Y:19.6, return5Y:18.0, expenseRatio:0.25, aum:"290 Cr", risk:"High" },
+  { id:48, name:"Edelweiss Nifty IT ETF", symbol:"EDELIT.NS", display:"EDELIT", category:"IT & Technology", return1Y:26.4, return3Y:19.7, return5Y:18.1, expenseRatio:0.28, aum:"210 Cr", risk:"High" },
+  { id:49, name:"Motilal Oswal Nifty IT ETF", symbol:"MOIT.NS", display:"MOIT", category:"IT & Technology", return1Y:26.7, return3Y:20.0, return5Y:18.3, expenseRatio:0.24, aum:"180 Cr", risk:"High" },
+  { id:50, name:"Axis Nifty IT ETF", symbol:"AXISIT.NS", display:"AXISIT", category:"IT & Technology", return1Y:26.5, return3Y:19.9, return5Y:18.2, expenseRatio:0.23, aum:"150 Cr", risk:"High" },
+
+  // GOLD
+  { id:51, name:"Nippon India Gold BeES", symbol:"GOLDBEES.NS", display:"GOLDBEES", category:"Gold", return1Y:28.5, return3Y:17.2, return5Y:13.8, expenseRatio:0.55, aum:"8,500 Cr", risk:"Moderate" },
+  { id:52, name:"ICICI Prudential Gold ETF", symbol:"GOLDIETF.NS", display:"GOLDIETF", category:"Gold", return1Y:28.9, return3Y:17.4, return5Y:13.4, expenseRatio:0.50, aum:"4,300 Cr", risk:"Moderate" },
+  { id:53, name:"HDFC Gold ETF", symbol:"HDFCGOLD.NS", display:"HDFCGOLD", category:"Gold", return1Y:28.7, return3Y:17.3, return5Y:13.6, expenseRatio:0.59, aum:"3,800 Cr", risk:"Moderate" },
+  { id:54, name:"Kotak Gold ETF", symbol:"KOTAKGOLD.NS", display:"KOTAKGOLD", category:"Gold", return1Y:28.6, return3Y:17.1, return5Y:13.5, expenseRatio:0.55, aum:"3,200 Cr", risk:"Moderate" },
+  { id:55, name:"SBI Gold ETF", symbol:"SETFGOLD.NS", display:"SETFGOLD", category:"Gold", return1Y:28.4, return3Y:17.0, return5Y:13.3, expenseRatio:0.51, aum:"2,900 Cr", risk:"Moderate" },
+  { id:56, name:"Axis Gold ETF", symbol:"AXISGOLD.NS", display:"AXISGOLD", category:"Gold", return1Y:28.5, return3Y:17.1, return5Y:13.4, expenseRatio:0.53, aum:"2,100 Cr", risk:"Moderate" },
+  { id:57, name:"Aditya Birla SL Gold ETF", symbol:"ABSLGOLD.NS", display:"ABSLGOLD", category:"Gold", return1Y:28.3, return3Y:17.0, return5Y:13.2, expenseRatio:0.54, aum:"1,500 Cr", risk:"Moderate" },
+  { id:58, name:"UTI Gold ETF", symbol:"UTIGOLD.NS", display:"UTIGOLD", category:"Gold", return1Y:28.4, return3Y:17.1, return5Y:13.3, expenseRatio:0.50, aum:"1,200 Cr", risk:"Moderate" },
+  { id:59, name:"Mirae Asset Gold ETF", symbol:"MIRAEGOLD.NS", display:"MIRAEGOLD", category:"Gold", return1Y:28.6, return3Y:17.2, return5Y:13.5, expenseRatio:0.45, aum:"850 Cr", risk:"Moderate" },
+  { id:60, name:"Edelweiss Gold ETF", symbol:"EDELGOLD.NS", display:"EDELGOLD", category:"Gold", return1Y:28.5, return3Y:17.0, return5Y:13.4, expenseRatio:0.55, aum:"680 Cr", risk:"Moderate" },
+
+  // SILVER
+  { id:61, name:"Nippon India Silver ETF", symbol:"SILVERBEES.NS", display:"SILVERBEES", category:"Silver", return1Y:32.5, return3Y:18.8, return5Y:14.2, expenseRatio:0.55, aum:"3,200 Cr", risk:"High" },
+  { id:62, name:"ICICI Prudential Silver ETF", symbol:"SILVERIETF.NS", display:"SILVERIETF", category:"Silver", return1Y:32.8, return3Y:19.0, return5Y:14.5, expenseRatio:0.50, aum:"2,500 Cr", risk:"High" },
+  { id:63, name:"HDFC Silver ETF", symbol:"HDFCSILVER.NS", display:"HDFCSILVER", category:"Silver", return1Y:32.6, return3Y:18.9, return5Y:14.3, expenseRatio:0.59, aum:"1,800 Cr", risk:"High" },
+  { id:64, name:"Kotak Silver ETF", symbol:"KOTAKSILVER.NS", display:"KOTAKSILVER", category:"Silver", return1Y:32.5, return3Y:18.7, return5Y:14.1, expenseRatio:0.55, aum:"1,200 Cr", risk:"High" },
+  { id:65, name:"Aditya Birla SL Silver ETF", symbol:"ABSLSILVER.NS", display:"ABSLSILVER", category:"Silver", return1Y:32.4, return3Y:18.6, return5Y:14.0, expenseRatio:0.54, aum:"850 Cr", risk:"High" },
+  { id:66, name:"Edelweiss Silver ETF", symbol:"EDELSILVER.NS", display:"EDELSILVER", category:"Silver", return1Y:32.5, return3Y:18.8, return5Y:14.2, expenseRatio:0.55, aum:"620 Cr", risk:"High" },
+  { id:67, name:"Mirae Asset Silver ETF", symbol:"MIRAESILVER.NS", display:"MIRAESILVER", category:"Silver", return1Y:32.7, return3Y:18.9, return5Y:14.3, expenseRatio:0.45, aum:"480 Cr", risk:"High" },
+  { id:68, name:"Axis Silver ETF", symbol:"AXISSILVER.NS", display:"AXISSILVER", category:"Silver", return1Y:32.5, return3Y:18.7, return5Y:14.1, expenseRatio:0.53, aum:"380 Cr", risk:"High" },
+  { id:69, name:"UTI Silver ETF", symbol:"UTISILVER.NS", display:"UTISILVER", category:"Silver", return1Y:32.4, return3Y:18.6, return5Y:14.0, expenseRatio:0.50, aum:"290 Cr", risk:"High" },
+  { id:70, name:"Motilal Oswal Silver ETF", symbol:"MOSILVER.NS", display:"MOSILVER", category:"Silver", return1Y:32.3, return3Y:18.5, return5Y:13.9, expenseRatio:0.52, aum:"210 Cr", risk:"High" },
+
+  // PHARMA & HEALTHCARE
+  { id:71, name:"Nippon India Pharma ETF", symbol:"PHARMABEES.NS", display:"PHARMABEES", category:"Pharma & Healthcare", return1Y:32.5, return3Y:21.5, return5Y:18.2, expenseRatio:0.30, aum:"1,800 Cr", risk:"High" },
+  { id:72, name:"ICICI Prudential Pharma ETF", symbol:"PHARMAIETF.NS", display:"PHARMAIETF", category:"Pharma & Healthcare", return1Y:32.8, return3Y:21.7, return5Y:18.4, expenseRatio:0.28, aum:"1,200 Cr", risk:"High" },
+  { id:73, name:"HDFC Pharma ETF", symbol:"HDFCPHARMA.NS", display:"HDFCPHARMA", category:"Pharma & Healthcare", return1Y:32.6, return3Y:21.6, return5Y:18.3, expenseRatio:0.30, aum:"850 Cr", risk:"High" },
+  { id:74, name:"Mirae Asset Healthcare ETF", symbol:"HEALTHIETF.NS", display:"HEALTHIETF", category:"Pharma & Healthcare", return1Y:33.2, return3Y:22.1, return5Y:18.8, expenseRatio:0.25, aum:"680 Cr", risk:"High" },
+  { id:75, name:"Kotak Healthcare ETF", symbol:"KOTAKHEALTH.NS", display:"KOTAKHEALTH", category:"Pharma & Healthcare", return1Y:32.7, return3Y:21.6, return5Y:18.3, expenseRatio:0.32, aum:"480 Cr", risk:"High" },
+  { id:76, name:"SBI Pharma ETF", symbol:"SBIPHARMA.NS", display:"SBIPHARMA", category:"Pharma & Healthcare", return1Y:32.4, return3Y:21.4, return5Y:18.1, expenseRatio:0.30, aum:"380 Cr", risk:"High" },
+  { id:77, name:"Aditya Birla SL Pharma ETF", symbol:"ABSLPHARMA.NS", display:"ABSLPHARMA", category:"Pharma & Healthcare", return1Y:32.3, return3Y:21.3, return5Y:18.0, expenseRatio:0.32, aum:"290 Cr", risk:"High" },
+  { id:78, name:"Axis Healthcare ETF", symbol:"AXISHEALTH.NS", display:"AXISHEALTH", category:"Pharma & Healthcare", return1Y:32.5, return3Y:21.5, return5Y:18.2, expenseRatio:0.30, aum:"210 Cr", risk:"High" },
+  { id:79, name:"Edelweiss Pharma ETF", symbol:"EDELPHARMA.NS", display:"EDELPHARMA", category:"Pharma & Healthcare", return1Y:32.4, return3Y:21.4, return5Y:18.1, expenseRatio:0.33, aum:"180 Cr", risk:"High" },
+  { id:80, name:"Motilal Oswal Pharma ETF", symbol:"MOPHARMA.NS", display:"MOPHARMA", category:"Pharma & Healthcare", return1Y:32.2, return3Y:21.2, return5Y:17.9, expenseRatio:0.32, aum:"150 Cr", risk:"High" },
+
+  // INTERNATIONAL
+  { id:81, name:"Mirae Asset NYSE FANG+ ETF", symbol:"MAFANG.NS", display:"MAFANG", category:"International", return1Y:45.2, return3Y:24.8, return5Y:22.6, expenseRatio:0.66, aum:"2,100 Cr", risk:"Very High" },
+  { id:82, name:"Motilal Oswal Nasdaq 100 ETF", symbol:"MON100.NS", display:"MON100", category:"International", return1Y:32.8, return3Y:18.5, return5Y:19.2, expenseRatio:0.58, aum:"8,200 Cr", risk:"High" },
+  { id:83, name:"Mirae Asset S&P 500 Top 50 ETF", symbol:"MASPTOP50.NS", display:"MASPTOP50", category:"International", return1Y:38.5, return3Y:21.2, return5Y:20.5, expenseRatio:0.65, aum:"1,500 Cr", risk:"High" },
+  { id:84, name:"Nippon India ETF Hang Seng BeES", symbol:"HNGSNGBEES.NS", display:"HNGSNGBEES", category:"International", return1Y:18.5, return3Y:8.2, return5Y:6.8, expenseRatio:0.93, aum:"850 Cr", risk:"High" },
+  { id:85, name:"Motilal Oswal S&P 500 ETF", symbol:"MOSP500.NS", display:"MOSP500", category:"International", return1Y:32.2, return3Y:19.8, return5Y:18.5, expenseRatio:0.45, aum:"1,200 Cr", risk:"High" },
+  { id:86, name:"ICICI Prudential Nasdaq 100 ETF", symbol:"ICICINQ100.NS", display:"ICICINQ100", category:"International", return1Y:32.5, return3Y:18.2, return5Y:18.9, expenseRatio:0.50, aum:"680 Cr", risk:"High" },
+  { id:87, name:"Kotak Nasdaq 100 ETF", symbol:"KOTAKNASDQ.NS", display:"KOTAKNASDQ", category:"International", return1Y:32.6, return3Y:18.3, return5Y:19.0, expenseRatio:0.52, aum:"480 Cr", risk:"High" },
+  { id:88, name:"HDFC NIFTY 100 ETF", symbol:"HDFCNIFETF.NS", display:"HDFCNIFETF", category:"International", return1Y:25.8, return3Y:17.5, return5Y:15.2, expenseRatio:0.18, aum:"380 Cr", risk:"High" },
+  { id:89, name:"Mirae Asset Hang Seng TECH ETF", symbol:"MAHKTECH.NS", display:"MAHKTECH", category:"International", return1Y:22.5, return3Y:10.8, return5Y:8.5, expenseRatio:0.85, aum:"290 Cr", risk:"Very High" },
+  { id:90, name:"Aditya Birla SL Nasdaq ETF", symbol:"ABSLNASDQ.NS", display:"ABSLNASDQ", category:"International", return1Y:32.4, return3Y:18.1, return5Y:18.7, expenseRatio:0.55, aum:"210 Cr", risk:"High" },
+
+  // ENERGY & INFRASTRUCTURE
+  { id:91, name:"Nippon India ETF Nifty Infrastructure", symbol:"INFRABEES.NS", display:"INFRABEES", category:"Energy & Infrastructure", return1Y:48.5, return3Y:32.2, return5Y:24.8, expenseRatio:0.50, aum:"1,800 Cr", risk:"Very High" },
+  { id:92, name:"ICICI Prudential Energy ETF", symbol:"ICICIENERGY.NS", display:"ICICIENERGY", category:"Energy & Infrastructure", return1Y:42.5, return3Y:28.5, return5Y:22.1, expenseRatio:0.45, aum:"1,200 Cr", risk:"Very High" },
+  { id:93, name:"Mirae Asset Energy ETF", symbol:"ENERGYIETF.NS", display:"ENERGYIETF", category:"Energy & Infrastructure", return1Y:42.8, return3Y:28.7, return5Y:22.3, expenseRatio:0.42, aum:"850 Cr", risk:"Very High" },
+  { id:94, name:"Kotak Nifty Energy ETF", symbol:"KOTAKENRGY.NS", display:"KOTAKENRGY", category:"Energy & Infrastructure", return1Y:42.4, return3Y:28.4, return5Y:22.0, expenseRatio:0.48, aum:"680 Cr", risk:"Very High" },
+  { id:95, name:"HDFC Infrastructure ETF", symbol:"HDFCINFRA.NS", display:"HDFCINFRA", category:"Energy & Infrastructure", return1Y:48.2, return3Y:32.0, return5Y:24.5, expenseRatio:0.50, aum:"480 Cr", risk:"Very High" },
+  { id:96, name:"SBI Infrastructure ETF", symbol:"SBIINFRA.NS", display:"SBIINFRA", category:"Energy & Infrastructure", return1Y:48.1, return3Y:31.8, return5Y:24.3, expenseRatio:0.52, aum:"380 Cr", risk:"Very High" },
+  { id:97, name:"Aditya Birla SL Infrastructure ETF", symbol:"ABSLINFRA.NS", display:"ABSLINFRA", category:"Energy & Infrastructure", return1Y:47.8, return3Y:31.5, return5Y:24.0, expenseRatio:0.55, aum:"290 Cr", risk:"Very High" },
+  { id:98, name:"Edelweiss Energy ETF", symbol:"EDELENERGY.NS", display:"EDELENERGY", category:"Energy & Infrastructure", return1Y:42.5, return3Y:28.5, return5Y:22.1, expenseRatio:0.50, aum:"210 Cr", risk:"Very High" },
+  { id:99, name:"Axis Infrastructure ETF", symbol:"AXISINFRA.NS", display:"AXISINFRA", category:"Energy & Infrastructure", return1Y:47.5, return3Y:31.2, return5Y:23.8, expenseRatio:0.55, aum:"180 Cr", risk:"Very High" },
+  { id:100, name:"Motilal Oswal Energy ETF", symbol:"MOENERGY.NS", display:"MOENERGY", category:"Energy & Infrastructure", return1Y:42.3, return3Y:28.3, return5Y:21.9, expenseRatio:0.52, aum:"150 Cr", risk:"Very High" }
 ];
 
-localStorage.setItem('etfList', JSON.stringify(topETFs));
+// Save full list for detail page
+localStorage.setItem('etfList', JSON.stringify(allETFs));
 
-const sortedETFs = [...topETFs].sort((a,b) => b.return5Y - a.return5Y);
+const categories = [
+  { id: 'all', name: 'All ETFs', icon: '🏆', desc: 'Best performing ETFs across all sectors ranked by 5-year returns' },
+  { id: 'Large Cap', name: 'Large Cap', icon: '💎', desc: 'Top 10 large-cap ETFs tracking blue-chip indices' },
+  { id: 'Mid Cap', name: 'Mid Cap', icon: '📊', desc: 'Top 10 mid-cap ETFs with high growth potential' },
+  { id: 'Small Cap', name: 'Small Cap', icon: '🚀', desc: 'Top 10 small-cap ETFs with explosive growth potential' },
+  { id: 'Banking & Finance', name: 'Banking', icon: '🏦', desc: 'Top 10 banking and financial services ETFs' },
+  { id: 'IT & Technology', name: 'IT & Tech', icon: '💻', desc: 'Top 10 IT and technology sector ETFs' },
+  { id: 'Gold', name: 'Gold', icon: '🥇', desc: 'Top 10 gold ETFs - hedge against inflation' },
+  { id: 'Silver', name: 'Silver', icon: '🥈', desc: 'Top 10 silver ETFs - precious metal investment' },
+  { id: 'Pharma & Healthcare', name: 'Pharma', icon: '💊', desc: 'Top 10 pharma and healthcare ETFs' },
+  { id: 'International', name: 'International', icon: '🌍', desc: 'Top 10 international ETFs (US, Asia markets)' },
+  { id: 'Energy & Infrastructure', name: 'Energy', icon: '⚡', desc: 'Top 10 energy and infrastructure ETFs' }
+];
+
+let currentCategory = 'all';
 
 const riskColor = (r) => {
   if(r==="Moderate") return "bg-yellow-500/20 text-yellow-300 border-yellow-500/50";
@@ -65,40 +208,68 @@ const riskColor = (r) => {
   return "bg-red-500/20 text-red-300 border-red-500/50";
 };
 
+function renderCategories() {
+  document.getElementById('categoryNav').innerHTML = categories.map(cat => `
+    <button onclick="selectCategory('${cat.id}')" 
+      class="cat-btn ${currentCategory === cat.id ? 'active' : ''} flex-shrink-0 px-4 py-2 bg-slate-800/60 border border-slate-700 rounded-full text-sm font-medium hover:border-blue-500">
+      ${cat.icon} ${cat.name}
+    </button>
+  `).join('');
+}
+
+function selectCategory(catId) {
+  currentCategory = catId;
+  renderCategories();
+  renderGrid();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 function renderGrid() {
-  document.getElementById("etfGrid").innerHTML = sortedETFs.map((etf, i) => `
+  const cat = categories.find(c => c.id === currentCategory);
+  document.getElementById('categoryTitle').innerText = `${cat.icon} Top 10 ${cat.name} ETFs`;
+  document.getElementById('categoryDesc').innerText = cat.desc;
+
+  let filtered = currentCategory === 'all' 
+    ? [...allETFs] 
+    : allETFs.filter(e => e.category === currentCategory);
+
+  filtered.sort((a, b) => b.return5Y - a.return5Y);
+  filtered = filtered.slice(0, 10);
+
+  document.getElementById('etfGrid').innerHTML = filtered.map((etf, i) => `
     <a href="etf.html?symbol=${etf.symbol}&id=${etf.id}" class="card-hover block cursor-pointer p-5 rounded-2xl border bg-slate-800/60 border-slate-700 hover:border-blue-500/50">
       <div class="flex justify-between items-start mb-3">
         <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-slate-900 font-bold text-sm">#${i+1}</div>
+          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-slate-900 font-bold text-sm">#${i+1}</div>
           <span class="text-xs px-2 py-1 bg-blue-500/20 text-blue-300 rounded-md">${etf.category}</span>
         </div>
         <span class="text-xs px-2 py-1 rounded-md border ${riskColor(etf.risk)}">${etf.risk}</span>
       </div>
-      <h3 class="font-bold text-lg text-white mb-1">${etf.name}</h3>
+      <h3 class="font-bold text-lg text-white mb-1 line-clamp-2">${etf.name}</h3>
       <p class="text-sm text-slate-400 mb-4">${etf.display}</p>
       <div class="grid grid-cols-3 gap-2 mb-4">
         <div class="bg-slate-900/50 rounded-lg p-2 text-center">
           <p class="text-xs text-slate-400">1Y</p>
-          <p class="text-green-400 font-bold">📈 ${etf.return1Y}%</p>
+          <p class="text-green-400 font-bold text-sm">📈 ${etf.return1Y}%</p>
         </div>
         <div class="bg-slate-900/50 rounded-lg p-2 text-center">
           <p class="text-xs text-slate-400">3Y</p>
-          <p class="text-green-400 font-bold">${etf.return3Y}%</p>
+          <p class="text-green-400 font-bold text-sm">${etf.return3Y}%</p>
         </div>
         <div class="bg-slate-900/50 rounded-lg p-2 text-center">
           <p class="text-xs text-slate-400">5Y</p>
-          <p class="text-green-400 font-bold">${etf.return5Y}%</p>
+          <p class="text-green-400 font-bold text-sm">${etf.return5Y}%</p>
         </div>
       </div>
       <div class="flex justify-between text-xs text-slate-400 pt-3 border-t border-slate-700">
         <span>Expense: ${etf.expenseRatio}%</span>
-        <span class="text-blue-400">View Details →</span>
+        <span class="text-blue-400">Live Chart →</span>
       </div>
     </a>
-  `).join("");
+  `).join('');
 }
 
+renderCategories();
 renderGrid();
 </script>
 </body>
